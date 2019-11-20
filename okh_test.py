@@ -59,25 +59,33 @@ List = pd.DataFrame([], columns=['ts'])
 start = time.time()
 for i in range(len(arr2)):
     for j in range(len(arr2.columns)):
-        if arr2.iloc[i,j]==0:
-            if List.index[List['ts']==j].size>0:
-                z=0
-                for m in List.index[List['ts']==j]:
-                    if arr2.iloc[i,m]!=0:
-                        z+=1
-                if z==0:
-                    List = List.append(pd.DataFrame([j], columns=['ts'], index=[arr2.index[i]]))
-                    break   
-            elif List.index[List['ts']==j].size==0:
-                if List['ts'].size==0:
-                    List = List.append(pd.DataFrame([0], columns=['ts'], index=[arr2.index[i]]))
-                    break
-                elif List['ts'].size>0:
-                    List = List.append(pd.DataFrame([max(List['ts'])+1], columns=['ts'], index=[arr2.index[i]]))
-                    break
+        if List.index[List['ts']==j].size>0:
+            z=0
+            for m in List.index[List['ts']==j]:
+                if arr2.loc[arr2.index[i],m]!=0:
+                    z+=1
+            if z==0:
+                List = List.append(pd.DataFrame([j], columns=['ts'], index=[arr2.index[i]]))
+                break
+        elif List.index[List['ts']==j].size==0:
+            if List['ts'].size==0:
+                List = List.append(pd.DataFrame([0], columns=['ts'], index=[arr2.index[i]]))
+                break
+            elif List['ts'].size>0:
+                List = List.append(pd.DataFrame([max(List['ts'])+1], columns=['ts'], index=[arr2.index[i]]))
+                break
 end = time.time()
-print(end-start)    
+print(end-start)
     
 timeslot = []
 for i in range(max(List['ts'])+1):
     timeslot.append(List.index[List['ts']==i].values)    
+    
+List['index'] = List.index
+List = List[['index', 'ts']]
+
+List.sort_values(by=['index'], inplace=True)
+List['index'] += 1
+List['ts'] += 1   
+        
+List.to_csv('Carleton92.sol', header=False, index=False, sep=' ')   
